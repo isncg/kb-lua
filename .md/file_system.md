@@ -1,5 +1,8 @@
 # 文件系统
 
+## lfs安装
+    luarocks install luafilesystem
+
 ## 遍历文件
     local lfs = require("lfs")
 
