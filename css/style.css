@@ -3,17 +3,22 @@
     padding: 1em;
 }
 
+#markdown * {
+    font-family: Arial, sans-serif;
+}
+
 #markdown code {
     font-family: Consolas, monospace;
+}
+
+#markdown pre>code {
     color: rgb(225, 225, 225);
     background-color: rgb(122, 79, 36);
     display: block;
     padding: 1em;
 }
 
-#markdown * {
-    font-family: Arial, sans-serif;
-}
+
 
 #markdown h1 {
     display: block;
@@ -29,4 +34,15 @@
 
 #markdown h3 {
     font-style: italic;
+}
+
+#markdown table {
+    border-collapse: collapse;
+    /* 合并边框 */
+}
+
+#markdown th,
+td {
+    border: 1px solid black;
+    padding: 0.5em;
 }
