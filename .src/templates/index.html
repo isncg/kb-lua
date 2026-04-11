@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel="stylesheet" href="{{ doc_root }}css/style.css">
+    <meta charset="utf-8">
+</head>
+
+<body>
+    <h2>目录</h2>
+    <div id="index">
+        {% for post in post_list %}
+        <h3><a href="./{{ post.file_name }}">{{ post.title }}</a></h3>
+        {% endfor %}
+    </div>
+</body>

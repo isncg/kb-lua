@@ -4,6 +4,10 @@ local file_utils = require "file_utils"
 local aspect_template = require "aspect.template"
 local aspect = aspect_template.new()
 
+local function str_start_with(str, start_str)
+    return str:sub(1, #start_str) == start_str
+end
+
 local function str_end_with(str, ending)
     return str:sub(- #ending) == ending
 end
@@ -38,13 +42,19 @@ end
 local input_root_directory = ".."
 local output_root_directory = "../.build"
 local function traverse(directory, doc_root)
+    local post_list = {}
     for file_name in lfs.dir(directory) do
-        if file_name ~= "." and file_name ~= ".." then
+        if not str_start_with(file_name, ".") then
             local input_file_path = directory .. "/" .. file_name
             local attr = lfs.attributes(input_file_path)
             if attr.mode == "file" then
                 if str_end_with(file_name, ".md") then
                     local content = file_utils.read(input_file_path)
+                    local first_line = string.match(content, "^[^\n]+")
+                    if str_start_with(first_line, "# ") then
+                        local title = string.sub(first_line, 3)
+                        post_list[#post_list + 1] = { title = title, file_name = str_replace_end(file_name, ".md", ".html") }
+                    end
                     local markdown_html = markdown(content)
                     local result, error = aspect:render("post", { markdown_html = markdown_html, doc_root = doc_root })
                     if error then
@@ -62,6 +72,18 @@ local function traverse(directory, doc_root)
             elseif attr.mode == "directory" then
                 traverse(input_file_path, doc_root .. "../")
             end
+        end
+    end
+    if #post_list > 0 then
+        local result, error = aspect:render("index", { post_list = post_list, doc_root = doc_root })
+        if error then
+            print(error)
+        else
+            local output_file_path = str_replace_start(directory .. "/index.html", input_root_directory,
+                output_root_directory)
+            print("Generating " .. output_file_path)
+            -- io.open(output_file_path, "w"):write(html):close()
+            file_utils.write(output_file_path, tostring(result))
         end
     end
 end
