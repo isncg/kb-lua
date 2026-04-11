@@ -29,10 +29,21 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: install lua5.4 liblua5.4-dev luarocks libssl-dev
+        run: sudo apt install lua5.4 liblua5.4-dev luarocks libssl-dev
+      - name: Install luafilesystem
+        run: sudo luarocks install luafilesystem --lua-version 5.4
+      - name: Install aspect
+        run: sudo luarocks install aspect --lua-version 5.4
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Build
+        run: |
+          cd .src
+          lua5.4 run.lua
+          cd ..
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
