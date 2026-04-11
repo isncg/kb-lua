@@ -5,6 +5,14 @@
     <meta charset="utf-8">
 </head>
 
-<body><div id="markdown">
-{{ markdown_html }}
-</div></body>
+<body>
+    <div id="viewport">
+        <div id="titleline">
+            <div id="title">{{ title }}</div>
+        </div>
+        <div id="markdown">
+            <div id="meta">{{ author }} {{ date }}</div>
+            {{ markdown_html }}
+        </div>
+    </div>
+</body>

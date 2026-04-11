@@ -1,5 +1,9 @@
-#markdown {
+#viewport {
     background-color: bisque;
+}
+
+#markdown {
+    /* background-color: bisque; */
     padding: 1em;
 }
 
@@ -14,9 +18,10 @@
 
 #markdown pre>code {
     color: bisque;
-    background-color:rgb(105, 52, 15);
+    background-color: rgb(105, 52, 15);
     display: block;
     padding: 1em;
+    margin: 1em;
 }
 
 #markdown p>code {
@@ -24,6 +29,18 @@
     padding: 0.5em;
     font-weight: bold;
     background-color: burlywood;
+}
+
+#viewport #titleline {
+    width: 100%;
+    padding: 1em;
+    background-color: burlywood;
+    float: top;
+}
+
+#viewport #title {
+    font-weight: bold;
+    font-size: 2em;
 }
 
 #markdown h1 {
@@ -37,6 +54,7 @@
 
 #markdown h2 {
     padding-top: 1.5em;
+    border-bottom: 4px dashed burlywood;
 }
 
 #markdown h3 {
@@ -45,12 +63,23 @@
 
 #markdown table {
     border-collapse: collapse;
+    width: 100%;
     /* 合并边框 */
 }
 
-#markdown th,
-td {
-    border: 1px solid black;
+#markdown div:has(>table) {
+    background-color: bisque;
+    padding: 1em;
+}
+
+#markdown th {
+    border: 2px solid rgb(105, 52, 15);
+    padding: 0.5em;
+    background-color: burlywood;
+}
+
+#markdown td {
+    border: 2px solid rgb(105, 52, 15);
     padding: 0.5em;
 }
 

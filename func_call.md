@@ -97,33 +97,43 @@ static int print_args(lua_State *L) {
 函数及参数压栈
 
 **2、luaD_precall**
-调用发生时，luaD_precall 函数负责准备新的栈帧：
-1. 保存当前状态：将当前的 base 和 top 等信息保存到当前的 CallInfo 中。
-2. 创建新 CallInfo：为被调函数分配一个新的 CallInfo 结构，并链接到调用链上。若 CallInfo 链表不够用，会通过 luaE_extendCI 扩展。
-3. 为新函数设置 base：新帧的 base 指向函数对象所在的位置 (func)。
-4. 调整 top：新帧的 top 会根据函数定义和参数数量进行设置。
-5. 设置 lua_State 的 base 和 ci：更新 L->base 和新 L->ci，使虚拟机指向新帧。
 
-**对于 Lua 函数：** luaD_precall 设置好环境后，会通过 luaV_execute 开始执行字节码。在 luaV_execute 中，会定义 base = ci->func.p + 1（指向第一个参数位置），并进入主循环逐条执行指令。
+   调用发生时，luaD_precall 函数负责准备新的栈帧： 
 
-**对于 C 函数：** luaD_precall 直接调用该 C 函数，C 函数执行完毕后的返回值已位于栈上，等待 luaD_poscall 处理。
+   1. 保存当前状态：将当前的 base 和 top 等信息保存到当前的 CallInfo 中。
+   2. 创建新 CallInfo：为被调函数分配一个新的 CallInfo 结构，并链接到调用链上。若 CallInfo 链表不够用，会通过 luaE_extendCI 扩展。
+   3. 为新函数设置 base：新帧的 base 指向函数对象所在的位置 (func)。
+   4. 调整 top：新帧的 top 会根据函数定义和参数数量进行设置。
+   5. 设置 lua_State 的 base 和 ci：更新 L->base 和新 L->ci，使虚拟机指向新帧。
+
+**对于 Lua 函数：** 
+   
+   luaD_precall 设置好环境后，会通过 luaV_execute 开始执行字节码。在 luaV_execute 中，会定义 base = ci->func.p + 1（指向第一个参数位置），并进入主循环逐条执行指令。
+
+**对于 C 函数：** 
+
+   luaD_precall 直接调用该 C 函数，C 函数执行完毕后的返回值已位于栈上，等待 luaD_poscall 处理。
 
 **3、luaD_poscall**
-函数执行完毕后，luaD_poscall 函数负责清理并恢复调用者的栈帧：
-1. 获取返回结果的位置和数量
-2. 将返回值移动到调用者的栈上，覆盖之前的函数和参数位置
-3. 恢复调用者的 CallInfo (L->ci = ci->previous)
-4. 将 L->top 设置为调用者栈帧的新栈顶 (ci->top)
-5. 返回 nres (返回值的数量)
+
+   函数执行完毕后，luaD_poscall 函数负责清理并恢复调用者的栈帧：
+
+   1. 获取返回结果的位置和数量
+   2. 将返回值移动到调用者的栈上，覆盖之前的函数和参数位置
+   3. 恢复调用者的 CallInfo (L->ci = ci->previous)
+   4. 将 L->top 设置为调用者栈帧的新栈顶 (ci->top)
+   5. 返回 nres (返回值的数量)
 
 ## Tail Call
 尾调用（Tail Call） 是一种特殊的函数调用优化，当函数 f 的最后一条语句是调用另一个函数 g 并直接返回 g 的结果时，虚拟机可以复用当前栈帧，避免创建新的 CallInfo 结构。其核心实现在 ldo.c 的 luaD_pretailcall 函数中。
 
 1. 编译阶段：生成 OP_TAILCALL 指令
-Lua 编译器在解析函数时，如果发现一个调用位于 return 语句的尾部（例如 return f(...)），且没有需要保留的局部变量或额外操作，就会生成 OP_TAILCALL 字节码，而非普通的 OP_CALL。
+
+    Lua 编译器在解析函数时，如果发现一个调用位于 return 语句的尾部（例如 return f(...)），且没有需要保留的局部变量或额外操作，就会生成 OP_TAILCALL 字节码，而非普通的 OP_CALL。
 
 2. 运行阶段：luaD_pretailcall 复用栈帧
-当虚拟机执行到 OP_TAILCALL 时，会调用 luaD_pretailcall（位于 ldo.c）。其核心逻辑如下：
+
+    当虚拟机执行到 OP_TAILCALL 时，会调用 luaD_pretailcall（位于 ldo.c）。其核心逻辑如下：
 
 ```c 
 // ldo.c 中的简化逻辑:
@@ -156,7 +166,7 @@ int luaD_pretailcall (lua_State *L, CallInfo *ci, StkId func, int narg1, int del
 
 1. 调用必须是函数的最后一个动作
 
-例如：
+    例如：
 
 ```lua
 function f(n)
@@ -166,10 +176,12 @@ end
 ```
 
 2. 返回值不能是多个调用的结果
-不可以是 `return f(x), g(x)`，但被调用的函数可以返回多个值
+
+    不可以是 `return f(x), g(x)`，但被调用的函数可以返回多个值
 
 3. 仅对 Lua 函数有效
-Lua 只能优化对 Lua 函数 的尾调用。对 C 函数的调用（如 table.insert、print）不会被优化。
+
+    Lua 只能优化对 Lua 函数 的尾调用。对 C 函数的调用（如 table.insert、print）不会被优化。
 
 ## 普通调用vs尾调用
 | 特性            | 普通调用 (OP_CALL)              | 尾调用 (OP_TAILCALL)                 |

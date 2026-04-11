@@ -74,6 +74,8 @@ aspect.loader = function(name)
     return file:read("*a")
 end
 
+-- 解析文件元数据
+-- 返回元数据table、移除元数据后的content
 local function parse_meta_data(content)
     -- 将文件内容按行分割（兼容 CR, LF, CRLF）
     local lines = {}
@@ -99,7 +101,7 @@ local function parse_meta_data(content)
         i = i - 1
     end
 
-    return metadata
+    return metadata, table.concat(lines, "\n", 1, i)
 end
 
 local input_root_directory = ".."
@@ -117,19 +119,24 @@ local function traverse(directory, doc_root)
                     local title
                     if s_startswith(first_line, "# ") then
                         title = string.sub(first_line, 3)
+                        content = string.sub(content, string.len(first_line) + 2)
                     end
 
-                    local meta_data = parse_meta_data(content)
+                    local meta_data, rest_content = parse_meta_data(content)
+                    local date = meta_data.date or ""
+                    local author = meta_data.author or ""
+                    content = rest_content
 
                     post_list[#post_list + 1] = {
                         title = title,
-                        date = meta_data.date or "",
-                        author = meta_data.author or "",
+                        date = date,
+                        author = author,
                         file_name = file_name:gsub(".md$", ".html")
                     }
 
                     local markdown_html = markdown(content)
-                    local result, error = aspect:render("post", { markdown_html = markdown_html, doc_root = doc_root })
+                    local result, error = aspect:render("post",
+                        { markdown_html = markdown_html, doc_root = doc_root, title = title, date = date, author = author })
                     if error then
                         print(error)
                     else

@@ -718,7 +718,7 @@ local function tables(lines)
     while (true) do
         local pos, content, header = find_table(lines)
         if not pos then break end
-        local table_inner_html_text = "<table>"
+        local table_inner_html_text = "<div><table>"
         if header then
             table_inner_html_text = table_inner_html_text .. "<thead>\n<tr>\n"
             for i, col in ipairs(header) do
@@ -736,7 +736,7 @@ local function tables(lines)
             end
             table_inner_html_text = table_inner_html_text .. "</tr>\n"
         end
-        table_inner_html_text = table_inner_html_text .. "</tbody></table>"
+        table_inner_html_text = table_inner_html_text .. "</tbody></table></div>"
         local start = header and (pos - 1) or pos
         local stop = pos + #content
         local info = {
