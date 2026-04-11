@@ -2,7 +2,9 @@
 
 ## lfs安装
 
-`luarocks install luafilesystem`
+```
+luarocks install luafilesystem
+```
 
 ## 遍历文件
 
@@ -25,3 +27,5 @@ end
 
 list_files("./myfolder")
 ```
+
+@date 2026-4-2

@@ -8,8 +8,14 @@
 <body>
     <h2>目录</h2>
     <div id="index">
-        {% for post in post_list %}
-        <h3><a href="./{{ post.file_name }}">{{ post.title }}</a></h3>
-        {% endfor %}
+        <table>
+            {% for post in post_list %}
+            <tr>
+                <td> <a href="./{{ post.file_name }}">{{ post.title }}</a> </td>
+                <td>{{ post.author }}</td>
+                <td>{{ post.date }}</td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
 </body>
