@@ -25,7 +25,7 @@ local str_replace_end = function(str, ending, replace_str)
 end
 
 aspect.loader = function(name)
-    local file_path = "../.templates/" .. name .. ".html"
+    local file_path = "templates/" .. name .. ".html"
     local file = io.open(file_path, "r")
     if not file then
         print("file not found: " .. file_path)
@@ -35,8 +35,8 @@ aspect.loader = function(name)
 end
 
 
-local input_root_directory = "../.md"
-local output_root_directory = ".."
+local input_root_directory = ".."
+local output_root_directory = "../.build"
 local function traverse(directory, doc_root)
     for file_name in lfs.dir(directory) do
         if file_name ~= "." and file_name ~= ".." then
@@ -67,3 +67,4 @@ local function traverse(directory, doc_root)
 end
 
 traverse(input_root_directory, "./")
+file_utils.copy_file("css/style.css", "../.build/css/style.css")
